@@ -7,7 +7,7 @@ import { Icontent } from "../Interfaces/model.interface";
 import { ContentService } from "../Services/content.service";
 import { inject } from "inversify"
 import { MSG } from "../Constans/message";
-const upload = multer({ dest: 'uploads/' })
+// const upload = multer({ dest: 'uploads/' })
 
 @controller("/content", Auth)
 export class ContenetController {
