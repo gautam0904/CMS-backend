@@ -4,6 +4,7 @@ import { BaseMiddleware } from "inversify-express-utils";
 import jwt from "jsonwebtoken";
 import { errMSG } from "../Constans/message" 
 import { statuscode } from "../Constans/stacode";
+import { ApiError } from "../Utiles/Apierror";
 
 
 const secretkey = process.env.AccessTokenSeceret || "";
@@ -20,14 +21,21 @@ export class Auth extends BaseMiddleware {
             return;
         }
 
-        jwt.verify(token as string, secretkey, (err: any, decoded: any) => {
+         const tokenarray = (token as string).split(" ");
+
+      if (tokenarray[0] !== "Bearer") {
+        throw new ApiError(statuscode.Unauthorized, errMSG.required("Bearer token")
+        );
+      }
+
+        jwt.verify(tokenarray[1] as string, secretkey, (err: any, decoded: any) => {
             if (err) {
               res.status(statuscode.Unauthorized).send(errMSG.expiredToken)
               return
             }
             req.find = decoded 
-            req.body.USERID = decoded.userID;
-            req.body.ROLE = decoded.userType;      
+            req.body.USERID = decoded.id;
+            req.body.ROLE = decoded.role;         
             next()
           })
     }

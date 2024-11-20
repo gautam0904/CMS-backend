@@ -13,18 +13,14 @@ export class ContentService {
             const result = await Content.find();
             return {
                 statuscode: 200,
-                Content: {
                     message: MSG.success("Content fetched"),
                     data: result
-                }
             }
         } catch (error : any) {
             return {
                 statuscode: error.statuscode || 500,
-                Content: {
                     message: error.message || errMSG.defaultErrorMsg,
                     data: error
-                }
             }
         }
     }
@@ -43,18 +39,14 @@ export class ContentService {
 
             return {
                 statuscode: 200,
-                Content: {
                     message: MSG.success("Content created"),
                     data: result
-                }
             }
         } catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                Content: {
                     message: error.message || errMSG.defaultErrorMsg,
                     data: error
-                }
             }
         }
     }
@@ -78,18 +70,14 @@ export class ContentService {
 
             return {
                 statuscode: 200,
-                Content: {
                     message: MSG.success("Content updated"),
                     data: result
-                }
             }
         } catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                Content: {
                     message: error.message || errMSG.defaultErrorMsg,
                     data: error
-                }
             }
         }
     }
@@ -108,19 +96,15 @@ export class ContentService {
 
             return {
                 statuscode: 200,
-                Content: {
                     message: MSG.success("Content updated"),
                     data: result
-                }
             }
         }
         catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                Content: {
                     message: error.message || errMSG.defaultErrorMsg,
                     data: error
-                }
             }
         }
 
@@ -132,18 +116,14 @@ export class ContentService {
 
         return {
             statuscode: 200,
-            Content: {
                 message: MSG.success("Content deleted"),
                 data: result
-            }
         }
        } catch (error : any) {
         return{
             statuscode: error.statuscode || 500,
-            Content: {
                 message: error.message || errMSG.defaultErrorMsg,
                 data: error
-            }
         }
        }
     }

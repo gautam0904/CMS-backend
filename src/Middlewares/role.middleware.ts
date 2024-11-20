@@ -11,16 +11,21 @@ export class Role extends BaseMiddleware{
             const permission = {
                 admin: ['/user/deleteUser', '/user/get', `/user/update`,`/content/get`,`/content/update`,`/content/delete`,`/content/retreive`],
                 owner: [`/content/create`,`/content/update`,`/content/delete`],
-                user : [`content/get`]
+                user : [`/content/get`]
             }
 
-            const role = req.body.role;
+            const role = req.body.ROLE;
             const currentRoute =
               req.protocol + "://" + req.get("host") + req.originalUrl;
             const parsedUrl = new URL(currentRoute);
             const pathname = parsedUrl.pathname;
+
+             if (!permission[role]) {
+                throw new ApiError(statuscode.forbidden, errMSG.notValidRole(role));
+            }
+            
             const userPermissions = permission[role as keyof typeof permission];
-            if(userPermissions[role].includes(pathname)){
+             if (userPermissions.includes(pathname)) {
                 next();
             }else{
 
