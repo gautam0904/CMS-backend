@@ -1,4 +1,4 @@
-import { controller, httpDelete, httpPost, httpPut } from "inversify-express-utils";
+import { controller, httpDelete, httpGet, httpPost, httpPut } from "inversify-express-utils";
 import { UserService } from "../Services/user.service";
 import {inject } from "inversify";
 import {TYPES} from "../Types/types"
@@ -92,7 +92,7 @@ export class UserController {
         }
     }
            
-    @httpPut('/getAll')
+    @httpGet('/getAll')
     async getAll(req: Request, res: Response){
         try {
             const allUser = await this.user.getAlluser();
