@@ -7,6 +7,7 @@ import { Icontent } from "../Interfaces/model.interface";
 import { ContentService } from "../Services/content.service";
 import { inject } from "inversify"
 import { MSG } from "../Constans/message";
+import { TYPES } from '../Types/types';
 // const upload = multer({ dest: 'uploads/' })
 
 @controller("/content", Auth)
@@ -14,7 +15,7 @@ export class ContenetController {
 
     private content: ContentService
 
-    constructor(@inject(ContentService) content: ContentService) {
+    constructor(@inject(TYPES.ContentService) content: ContentService) {
         this.content = content;
     }
 
