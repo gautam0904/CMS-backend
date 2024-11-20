@@ -1,4 +1,4 @@
-import { controller, httpPost, httpPut } from "inversify-express-utils";
+import { controller, httpDelete, httpPost, httpPut } from "inversify-express-utils";
 import { UserService } from "../Services/user.service";
 import {inject } from "inversify";
 import {TYPES} from "../Types/types"
@@ -28,8 +28,6 @@ export class UserController {
         
         const signupData: Iuser = req.body as unknown as Iuser;
 
- 
-
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
         const profilePictureLocalpath = files?.profilePicture?.[0]?.path;
@@ -37,7 +35,7 @@ export class UserController {
 
         const created_user = await this.user.createUser(signupData);
 
-        res.status(statuscode.ok).json(created_user.Content);
+        res.status(created_user.statuscode).json(created_user);
        } catch (error : any) {
          res.status(error.stacode || 500).json({message : error.message || errMSG.InternalServerErrorResult})
        }
@@ -54,14 +52,14 @@ export class UserController {
 
             const login_user = await this.user.loginUser(loginData);
 
-            res.status(statuscode.ok).json(login_user.Content);
+            res.status(login_user.statuscode).json(login_user);
         }catch (error : any) {
             res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
 
     }
 
-    @httpPost('/delete')
+    @httpDelete('/delete')
     async delete (req : Request , res : Response){
         try {
             const userId = req.body.userId;
@@ -71,7 +69,7 @@ export class UserController {
 
             const deleted_user = await this.user.deleteUser(userId);
 
-            res.status(statuscode.ok).json(deleted_user.content);
+            res.status(deleted_user.statuscode).json(deleted_user);
         }catch (error) {
             res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
@@ -88,10 +86,20 @@ export class UserController {
 
             const updated_user = await this.user.updateUser(updateData);
 
-            res.status(statuscode.ok).json(updated_user.Content);
+            res.status(updated_user.statuscode).json(updated_user);
         }catch (error) {
             res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
     }
-            
+           
+    @httpPut('/getAll')
+    async getAll(req: Request, res: Response){
+        try {
+            const allUser = await this.user.getAlluser();
+
+            res.status(allUser.statuscode).json(allUser)
+        } catch (error) {
+            res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
+        }
+    }
 }

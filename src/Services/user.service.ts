@@ -14,175 +14,122 @@ export class UserService {
   constructor() { }
 
   async createUser(userData: Iuser) {
-    try {
-      const existUser = await User.findOne({ email: userData.email });
+    const existUser = await User.findOne({ email: userData.email });
 
-      if (existUser) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
-      }
+    if (existUser) {
+      throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+    }
 
-      const profile = await uploadOnCloudinary(userData.profilepic);
-      
+    const profile = await uploadOnCloudinary(userData.profilepic);
 
-      const result = await User.create({
-        name: userData.name,
-        email: userData.email,
-        profipic : profile.url,
-        profilepicId : profile.public_id,
-        password: userData.password,
-        role: userData.role
-      });
+    const result = await User.create({
+      name: userData.name,
+      email: userData.email,
+      profipic: profile.url,
+      profilepicId: profile.public_id,
+      password: userData.password,
+      role: userData.role
+    });
 
-      console.log(result);
-      
-
-      return {
-        statuscode: statuscode.ok,
-        Content : {
-          message: MSG.success('User created'),
-          data: result
-        }       
-      }
-    } catch (error: any) {
-      return {
-        statuscode: error.statuscode,
-        Content : {
-          message: error.message || errMSG.defaultErrorMsg,
-          data: error
-        }
-        
-      }
+    return {
+      statuscode: statuscode.ok,
+      message: MSG.success('User created'),
+      data: result
     }
   }
 
   async loginUser(userData: Iuser) {
-    try {
-      const existUser = await User.findOne({
-        email: userData.email
+    const existUser = await User.findOne({
+      email: userData.email
+    });
+
+    if (!existUser) {
+      throw new ApiError(statuscode.NoteFound, errMSG.notExistUser)
+    }
+
+    const isMatch = bcrypt.compare(userData.password, existUser.password);
+
+    if (!isMatch) {
+      throw new ApiError(statuscode.NotAcceptable, errMSG.passwordNotMatch)
+    }
+
+    const token = jwt.sign(
+      {
+        id: existUser._id,
+        role: existUser.role
+      },
+      process.env.AccessTokenSeceret,
+      {
+        expiresIn: process.env.AccessExpire
       });
 
-      if (!existUser) {
-        throw new ApiError(statuscode.NoteFound, errMSG.notExistUser)
-      }
-
-      const isMatch = bcrypt.compare(userData.password, existUser.password);
-
-      if (!isMatch) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.passwordNotMatch)
-      }
-
-      const token = jwt.sign(
-        {
-          id: existUser._id,
-          role: existUser.role
-        },
-        process.env.AccessTokenSeceret,
-        {
-          expiresIn: process.env.AccessExpire
-        });
-
-      return {
-        statuscode: statuscode.ok,
-        Content: {
-          message: MSG.success('User logged in'),
-          data: {
-            token: token,
-            user: existUser
-          }
-        }
-
-      }
-    } catch (error: any) {
-      return {
-        statuscode: error.statuscode,
-        Content: {
-          message: error.message || errMSG.defaultErrorMsg,
-          data: error
-        }
+    return {
+      statuscode: statuscode.ok,
+      message: MSG.success('User logged in'),
+      data: {
+        token: token,
+        user: existUser
       }
     }
   }
 
   async deleteUser(userId: string) {
-    try {
-      const existUser = await User.findOne({ _id: userId });
+    const existUser = await User.findOne({ _id: userId });
 
-      if (!existUser) {
-        throw new ApiError(statuscode.NoteFound, `${errMSG.notExistUser}`);
-      }
-      const result = await User.findByIdAndDelete(
-        { _id: existUser._id }
-      );
-      return {
-        statuscode: statuscode.ok,
-        content: {
-          message: MSG.success('user deleted'),
-        },
-      };
-    } catch (error: any) {
-      return {
-        statuscode: error.statusCode || statuscode.NotImplemented,
-        content: { message: error.message },
-      };
+    if (!existUser) {
+      throw new ApiError(statuscode.NoteFound, `${errMSG.notExistUser}`);
     }
+    const result = await User.findByIdAndDelete(
+      { _id: existUser._id }
+    );
+    return {
+      statuscode: statuscode.ok,
+      message: MSG.success('user deleted'),
+    };
   }
 
   async getAlluser() {
-    try {
-      const users = await User.aggregate([
-        {
-          $match: {},
+    const users = await User.aggregate([
+      {
+        $match: {},
+      },
+      {
+        $project: {
+          name: 1,
+          email: 1,
+          usertype: 1,
         },
-        {
-          $project: {
-            name: 1,
-            email: 1,
-            usertype: 1,
-          },
-        },
-      ]);
-      if (users) {
-        return {
-          statuscode: statuscode.ok,
-          content: { users },
-        };
-      } else {
-        throw new ApiError(statuscode.NoteFound, `${errMSG.userNotFound}`);
-      }
-    } catch (error: any) {
-      return {
-        statuscode: error.statusCode || statuscode.NotImplemented,
-        content: { message: error.message },
-      };
+      },
+    ]);
+    if (!users) {
+      throw new ApiError(statuscode.NoteFound, `${errMSG.userNotFound}`);
     }
+    return {
+      statuscode: statuscode.ok,
+      data: users,
+      message: MSG.success('All user get')
+    };
   }
 
   async updateUser(updateData: IupdateUser) {
-    try {
-      const result = await User.findByIdAndUpdate(
-        {
-          _id: updateData.id,
+    const result = await User.findByIdAndUpdate(
+      {
+        _id: updateData.id,
+      },
+      {
+        $set: {
+          usertype: updateData.role,
         },
-        {
-          $set: {
-            usertype: updateData.role,
-          },
-        },
-        { new: true }
-      );
-      if (result) {
-        return {
-          statuscode: statuscode.ok,
-          Content: result,
-        };
-      }
+      },
+      { new: true }
+    );
+    if (!result) {
       throw new ApiError(statuscode.NotImplemented, errMSG.updateUser);
-    } catch (error: any) {
-      return {
-        statuscode: error.statusCode || statuscode.NotImplemented,
-        Content: error.message,
-      };
     }
+    return {
+      statuscode: statuscode.ok,
+      data: result,
+      message: MSG.success('User updated')
+    };
   }
-
 }
