@@ -10,7 +10,10 @@ import { MSG } from "../Constans/message";
 import { TYPES } from '../Types/types';
 // const upload = multer({ dest: 'uploads/' })
 
-@controller("/content", Auth)
+const authMiddleware = new Auth
+const roleMiddleware = new Role
+
+@controller("/content", authMiddleware.handler)
 export class ContenetController {
 
     private content: ContentService
@@ -25,7 +28,7 @@ export class ContenetController {
         maxCount: 1
     }])
 
-    @httpPost("/create", Role, )
+    @httpPost("/create", roleMiddleware.handler, )
     async create(req: Request,  res: Response) {
         try {
             const contentData: Icontent = req.body;
@@ -40,10 +43,7 @@ export class ContenetController {
 
             const content = await this.content.createContent(contentData);
 
-            res.status(200).json({
-                message: MSG.success('content is created'),
-                content
-            });
+            res.status(content.statuscode).json(content);
         } catch (error: any) {
             res.status(error.statusCode || 500).json({
                 message: error.message
@@ -52,15 +52,12 @@ export class ContenetController {
     }
 
 
-    @httpGet('/get' , Role)
+    @httpGet('/get' , roleMiddleware.handler)
     async get(req : Request, res : Response){
         try {
            const content = await this.content.getContent();
-            res.status(200).json({
-                message : MSG.success('content is get'),
-                content
-            })
-           
+            res.status(content.statuscode).json(content)
+
         } catch (error : any) {
             res.status(error.statusCode || 500).json({
                 message : error.message
