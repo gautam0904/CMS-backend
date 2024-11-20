@@ -4,8 +4,8 @@ export const TYPES = {
     UserController: Symbol.for('UserController'),
   
     // content
-    ContentService: Symbol.for('ContentServices'),
-    ContentController: Symbol.for('ContentController'),
+    ContentService: Symbol.for('ContentService'),
+    ContenetController: Symbol.for('ContenetController'),
    
     //middleware
     Auth: Symbol.for('Auth'),
