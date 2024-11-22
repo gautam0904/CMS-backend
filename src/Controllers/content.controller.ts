@@ -45,7 +45,7 @@ export class ContenetController {
 
             res.status(content.statuscode).json(content);
         } catch (error: any) {
-            res.status(error.statusCode || 500).json({
+            res.status(error.statuscode || 500).json({
                 message: error.message
             });
         }
@@ -59,7 +59,7 @@ export class ContenetController {
             res.status(content.statuscode).json(content)
 
         } catch (error : any) {
-            res.status(error.statusCode || 500).json({
+            res.status(error.statuscode || 500).json({
                 message : error.message
 
             })
