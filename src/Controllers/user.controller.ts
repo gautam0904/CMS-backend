@@ -37,7 +37,7 @@ export class UserController {
 
         res.status(created_user.statuscode).json(created_user);
        } catch (error : any) {
-         res.status(error.stacode || 500).json({message : error.message || errMSG.InternalServerErrorResult})
+         res.status(error.statuscode || 500).json({message : error.message || errMSG.InternalServerErrorResult})
        }
     }
 
@@ -54,7 +54,7 @@ export class UserController {
 
             res.status(login_user.statuscode).json(login_user);
         }catch (error : any) {
-            res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
+            res.status(error.statuscode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
 
     }
@@ -71,7 +71,7 @@ export class UserController {
 
             res.status(deleted_user.statuscode).json(deleted_user);
         }catch (error) {
-            res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
+            res.status(error.statuscode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
     }
 
@@ -88,7 +88,7 @@ export class UserController {
 
             res.status(updated_user.statuscode).json(updated_user);
         }catch (error) {
-            res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
+            res.status(error.statuscode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
     }
            
@@ -99,7 +99,7 @@ export class UserController {
 
             res.status(allUser.statuscode).json(allUser)
         } catch (error) {
-            res.status(error.stacode).json({message : error.message || errMSG.InternalServerErrorResult})
+            res.status(error.statuscode).json({message : error.message || errMSG.InternalServerErrorResult})
         }
     }
 }
