@@ -3,6 +3,7 @@ import { Icontent } from '../Interfaces/model.interface';
 import { uploadOnCloudinary } from '../Utiles/cloudinary';
 import Content from '../Models/content.model';
 import { MSG, errMSG } from '../Constans/message';
+import mongoose from 'mongoose';
 
 @injectable()
 export class ContentService {
@@ -13,14 +14,14 @@ export class ContentService {
             const result = await Content.find();
             return {
                 statuscode: 200,
-                    message: MSG.success("Content fetched"),
-                    data: result
+                message: MSG.success("Content fetched"),
+                data: result
             }
-        } catch (error : any) {
+        } catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                    message: error.message || errMSG.defaultErrorMsg,
-                    data: error
+                message: error.message || errMSG.defaultErrorMsg,
+                data: error
             }
         }
     }
@@ -39,14 +40,14 @@ export class ContentService {
 
             return {
                 statuscode: 200,
-                    message: MSG.success("Content created"),
-                    data: result
+                message: MSG.success("Content created"),
+                data: result
             }
         } catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                    message: error.message || errMSG.defaultErrorMsg,
-                    data: error
+                message: error.message || errMSG.defaultErrorMsg,
+                data: error
             }
         }
     }
@@ -58,7 +59,7 @@ export class ContentService {
             const mideacloudinary = await uploadOnCloudinary(contentData.midea);
 
             const result = await Content.findByIdAndUpdate({
-                _id: id
+                _id: new mongoose.Types.ObjectId(id)
             },
                 {
                     title: contentData.title,
@@ -68,65 +69,78 @@ export class ContentService {
                     updatedby: contentData.updatedby
                 });
 
+                if (!result) {
+                    return {
+                        statuscode: 501,
+                        message: errMSG.InternalServerErrorResult,
+                    }
+                }
+
             return {
                 statuscode: 200,
-                    message: MSG.success("Content updated"),
-                    data: result
+                message: MSG.success("Content updated"),
+                data: result
             }
         } catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                    message: error.message || errMSG.defaultErrorMsg,
-                    data: error
+                message: error.message || errMSG.defaultErrorMsg,
+                data: error
             }
         }
     }
 
     async updateContentWithoutMidea(id: string, contentData: Icontent) {
         try {
-            const result = await Content.findByIdAndUpdate({
-                _id: id
-            },
+            const result = await Content.findByIdAndUpdate(
+                {
+                _id: new mongoose.Types.ObjectId(id)
+                },
                 {
                     title: contentData.title,
                     description: contentData.description,
                     owner: contentData.owner,
                     updatedby: contentData.updatedby
                 });
+            if (!result) {
+                return {
+                    statuscode: 501,
+                    message: errMSG.InternalServerErrorResult,
+                }
+            }
 
             return {
                 statuscode: 200,
-                    message: MSG.success("Content updated"),
-                    data: result
+                message: MSG.success("Content updated"),
+                data: result
             }
         }
         catch (error: any) {
             return {
                 statuscode: error.statuscode || 500,
-                    message: error.message || errMSG.defaultErrorMsg,
-                    data: error
+                message: error.message || errMSG.defaultErrorMsg,
+                data: error
             }
         }
 
     }
 
-    async deleteContent (id : string){
-       try {
-        const result = await Content.findByIdAndDelete(id);
+    async deleteContent(id: string) {
+        try {
+            const result = await Content.findByIdAndDelete(id);
 
-        return {
-            statuscode: 200,
+            return {
+                statuscode: 200,
                 message: MSG.success("Content deleted"),
                 data: result
-        }
-       } catch (error : any) {
-        return{
-            statuscode: error.statuscode || 500,
+            }
+        } catch (error: any) {
+            return {
+                statuscode: error.statuscode || 500,
                 message: error.message || errMSG.defaultErrorMsg,
                 data: error
+            }
         }
-       }
     }
-
 
 }

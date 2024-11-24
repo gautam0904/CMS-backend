@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { controller, httpGet, httpPost } from "inversify-express-utils";
+import { controller, httpGet, httpPost, httpPut } from "inversify-express-utils";
 import { Auth } from "../Middlewares/auth.middleware";
 import { Role } from "../Middlewares/role.middleware";
 import { upload } from "../Middlewares/multer.midddleware";
@@ -63,6 +63,31 @@ export class ContenetController {
                 message : error.message
 
             })
+        }
+    }
+    
+    @httpPut('/update', roleMiddleware.handler, upload.fields([{
+        name: "midea",
+        maxCount: 1
+    }]))
+    async update(req: Request, res: Response) {
+        try {
+            const contentData: Icontent = req.body;
+
+            contentData.owner = contentData.updatedby = req.body.USERID;
+
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+            const profilePictureLocalpath = files?.midea?.[0]?.path;
+            contentData.midea = profilePictureLocalpath;
+
+            const content = profilePictureLocalpath ? await this.content.updateContentWithMidea(contentData._id,contentData) : await this.content.updateContentWithoutMidea(contentData._id,contentData)
+
+            res.status(content.statuscode).json(content);
+        } catch (error: any) {
+            res.status(error.statuscode || 500).json({
+                message: error.message
+            });
         }
     }
 }
