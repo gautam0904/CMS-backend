@@ -6,12 +6,9 @@ import { errMSG } from "../Constans/message"
 import { statuscode } from "../Constans/stacode";
 import { ApiError } from "../Utiles/Apierror";
 
-
-const secretkey = process.env.AccessTokenSeceret || "";
-
 export class Auth extends BaseMiddleware {
     handler(req: Request, res: Response, next: NextFunction): void {
-
+      const secretkey = process.env.AccessTokenSeceret || "";
         const token   = req.headers.token;
 
         if (!token) {
