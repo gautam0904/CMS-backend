@@ -24,13 +24,13 @@ const container = new Container()
 // container.bind<Role>(Role).toSelf();
 
 //controller
-for(const i in controller){
+for (const i in controller) {
   const Controller = controller[i];
   container.bind<typeof Controller>(TYPES[Controller.name]).to(Controller)
 }
 
 // services
-for(const i in services){
+for (const i in services) {
   const Services = services[i];
   container.bind<typeof Services>(TYPES[Services.name]).to(Services)
 }

@@ -13,28 +13,39 @@ import { uploadOnCloudinary } from '../Utiles/cloudinary';
 export class UserService {
   constructor() { }
 
+  cloudinaryURL: string | null = null
+
   async createUser(userData: Iuser) {
-    const existUser = await User.findOne({ email: userData.email });
+    try {
+      const existUser = await User.findOne({ email: userData.email });
 
-    if (existUser) {
-      throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
-    }
+      if (existUser) {
+        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+      }
 
-    const profile = await uploadOnCloudinary(userData.profilepic);
+      const profile = await uploadOnCloudinary(userData.profilepic);
 
-    const result = await User.create({
-      name: userData.name,
-      email: userData.email,
-      profipic: profile.url,
-      profilepicId: profile.public_id,
-      password: userData.password,
-      role: userData.role
-    });
+      const result = await User.create({
+        name: userData.name,
+        email: userData.email,
+        profipic: profile.url,
+        profilepicId: profile.public_id,
+        password: userData.password,
+        role: userData.role
+      });
 
-    return {
-      statuscode: statuscode.ok,
-      message: MSG.success('User created'),
-      data: result
+      return {
+        statuscode: statuscode.ok,
+        message: MSG.success('User created'),
+        data: result
+      }
+    } catch (error) {
+      // delete cloudinary image
+      return {
+        statuscode: error.statuscode || 500,
+        message: error.message || errMSG.InternalServerErrorResult,
+        data: null
+      }
     }
   }
 
