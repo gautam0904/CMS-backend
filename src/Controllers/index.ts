@@ -1,2 +1,2 @@
-export {UserController} from './user.controller'
-export {ContenetController} from './content.controller'
+export { UserController } from './user.controller'
+export { ContenetController } from './content.controller'
