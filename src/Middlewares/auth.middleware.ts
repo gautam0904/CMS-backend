@@ -8,6 +8,7 @@ import { ApiError } from "../Utiles/Apierror";
 
 export class Auth extends BaseMiddleware {
   handler(req: Request, res: Response, next: NextFunction): void {
+    const secretkey = process.env.AccessTokenSeceret;
 
     const token = req.headers.token;
 
