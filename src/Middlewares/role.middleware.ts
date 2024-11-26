@@ -10,7 +10,7 @@ export class Role extends BaseMiddleware {
     try {
       const permission = {
         admin: ['/user/deleteUser', '/user/get', `/user/update`, `/content/get`, `/content/update`, `/content/delete`, `/content/retreive`],
-        owner: [`/content/create`, `/content/update`, `/content/delete`],
+        creater: [`/content/get`, `/content/create`, `/content/update`, `/content/delete`],
         user: [`/content/get`]
       }
 

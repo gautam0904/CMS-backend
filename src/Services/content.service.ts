@@ -55,11 +55,10 @@ export class ContentService {
 
   async updateContentWithMidea(id: string, contentData: Icontent) {
     try {
-
       const mideacloudinary = await uploadOnCloudinary(contentData.midea);
 
       const result = await Content.findByIdAndUpdate({
-        _id: id
+        _id: new mongoose.Types.ObjectId(id),
       },
         {
           title: contentData.title,
@@ -86,7 +85,7 @@ export class ContentService {
   async updateContentWithoutMidea(id: string, contentData: Icontent) {
     try {
       const result = await Content.findByIdAndUpdate({
-        _id: id
+        _id: new mongoose.Types.ObjectId(id)
       },
         {
           title: contentData.title,
