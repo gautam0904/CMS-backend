@@ -21,7 +21,7 @@ export class Role extends BaseMiddleware {
       const pathname = parsedUrl.pathname;
 
       if (!permission[role]) {
-        throw new ApiError(statuscode.forbidden, errMSG.notValidRole(role));
+        throw new ApiError(statuscode.FORBIDDEN, errMSG.notValidRole(role));
       }
 
       const userPermissions = permission[role as keyof typeof permission];
@@ -29,10 +29,10 @@ export class Role extends BaseMiddleware {
         next();
       } else {
 
-        throw new ApiError(statuscode.forbidden, errMSG.notValidRole(role))
+        throw new ApiError(statuscode.FORBIDDEN, errMSG.notValidRole(role))
       }
     } catch (error: any) {
-      res.status(error.statusCode || statuscode.NotImplemented).json({
+      res.status(error.statusCode || statuscode.NOTIMPLEMENTED).json({
         message: error.message
       })
     }

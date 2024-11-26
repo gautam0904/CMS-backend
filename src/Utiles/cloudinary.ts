@@ -27,21 +27,21 @@ const uploadOnCloudinary = async (localpath: string) => {
 
 }
 
-// const deleteonCloudinary = async (publicId : string)=>{
-//     try {
-//         if (!publicId) return null ;
-//         const response = await cloudinary.uploader.destroy(publicId);
-//         if (response) {
-//             console.log("file is delete on cloudinary");
-//         }
-//         return response;
-//     } catch (error) {
-//         return null;
-//     }
+const deleteonCloudinary = async (publicId : string)=>{
+    try {
+        if (!publicId) return null ;
+        const response = await cloudinary.uploader.destroy(publicId);
+        if (response) {
+            console.log("file is delete on cloudinary");
+        }
+        return response;
+    } catch (error) {
+        return null;
+    }
 
-//     cloudinary.uploader
-//     .destroy('docs/vegetables')
-//     .then(result => console.log(result));
-// }
+    cloudinary.uploader
+    .destroy('docs/vegetables')
+    .then(result => console.log(result));
+}
 
-export { uploadOnCloudinary }
+export { uploadOnCloudinary, deleteonCloudinary }

@@ -44,7 +44,7 @@ export class ContenetController {
 
       res.status(content.statuscode).json(content);
     } catch (error: any) {
-      res.status(error.statuscode || 500).json({
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({
         message: error.message
       });
     }
@@ -58,7 +58,7 @@ export class ContenetController {
       res.status(content.statuscode).json(content)
 
     } catch (error: any) {
-      res.status(error.statuscode || 500).json({
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({
         message: error.message
 
       })
@@ -79,7 +79,7 @@ export class ContenetController {
 
       res.status(updated_user.statuscode).json(updated_user);
     } catch (error) {
-      res.status(error.statuscode).json({ message: error.message  })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message  })
     }
   }
 
@@ -88,14 +88,14 @@ export class ContenetController {
     try {
       const cid = req.query.id as string;
       if (!cid) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
 
       const deleted_content = await this.content.deleteContent(cid);
 
       res.status(deleted_content.statuscode).json(deleted_content);
     } catch (error) {
-      res.status(error.statuscode).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
   }
 }

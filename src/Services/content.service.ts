@@ -4,6 +4,7 @@ import { uploadOnCloudinary } from '../Utiles/cloudinary';
 import Content from '../Models/content.model';
 import { MSG, errMSG } from '../Constans/message';
 import mongoose from 'mongoose';
+import { statuscode } from '../Constans/stacode';
 
 @injectable()
 export class ContentService {
@@ -13,13 +14,13 @@ export class ContentService {
     try {
       const result = await Content.find();
       return {
-        statuscode: 200,
+        statuscode: statuscode.OK,
         message: MSG.success("Content fetched"),
         data: result
       }
     } catch (error: any) {
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }
@@ -39,13 +40,13 @@ export class ContentService {
       });
 
       return {
-        statuscode: 200,
+        statuscode: statuscode.OK,
         message: MSG.success("Content created"),
         data: result
       }
     } catch (error: any) {
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.OK,
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }
@@ -69,13 +70,13 @@ export class ContentService {
         });
 
       return {
-        statuscode: 200,
+        statuscode: statuscode.OK,
         message: MSG.success("Content updated"),
         data: result
       }
     } catch (error: any) {
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }
@@ -95,14 +96,14 @@ export class ContentService {
         });
 
       return {
-        statuscode: 200,
+        statuscode: statuscode.OK,
         message: MSG.success("Content updated"),
         data: result
       }
     }
     catch (error: any) {
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }
@@ -115,13 +116,13 @@ export class ContentService {
       const result = await Content.findByIdAndDelete(id);
 
       return {
-        statuscode: 200,
+        statuscode: statuscode.OK,
         message: MSG.success("Content deleted"),
         data: result
       }
     } catch (error: any) {
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }

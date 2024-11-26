@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt'
 import { IupdateUser } from '../Interfaces/request.interface';
 import { uploadOnCloudinary } from '../Utiles/cloudinary';
+import mongoose from 'mongoose';
 
 @injectable()
 export class UserService {
@@ -20,7 +21,7 @@ export class UserService {
       const existUser = await User.findOne({ email: userData.email });
 
       if (existUser) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
 
       const profile = await uploadOnCloudinary(userData.profilepic);
@@ -35,14 +36,14 @@ export class UserService {
       });
 
       return {
-        statuscode: statuscode.ok,
+        statuscode: statuscode.OK,
         message: MSG.success('User created'),
         data: result
       }
     } catch (error) {
       // delete cloudinary image
       return {
-        statuscode: error.statuscode || 500,
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.InternalServerErrorResult,
         data: null
       }
@@ -55,13 +56,13 @@ export class UserService {
     });
 
     if (!existUser) {
-      throw new ApiError(statuscode.NoteFound, errMSG.notExistUser)
+      throw new ApiError(statuscode.NOCONTENT, errMSG.notExistUser)
     }
 
     const isMatch = bcrypt.compare(userData.password, existUser.password);
 
     if (!isMatch) {
-      throw new ApiError(statuscode.NotAcceptable, errMSG.passwordNotMatch)
+      throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.passwordNotMatch)
     }
 
     const token = jwt.sign(
@@ -75,7 +76,7 @@ export class UserService {
       });
 
     return {
-      statuscode: statuscode.ok,
+      statuscode: statuscode.OK,
       message: MSG.success('User logged in'),
       data: {
         token: token,
@@ -88,35 +89,38 @@ export class UserService {
     const existUser = await User.findOne({ _id: userId });
 
     if (!existUser) {
-      throw new ApiError(statuscode.NoteFound, `${errMSG.notExistUser}`);
+      throw new ApiError(statuscode.NOCONTENT, `${errMSG.notExistUser}`);
     }
     const result = await User.findByIdAndDelete(
       { _id: existUser._id }
     );
     return {
-      statuscode: statuscode.ok,
+      statuscode: statuscode.OK,
       message: MSG.success('user deleted'),
     };
   }
 
-  async getAlluser() {
+  async getUserById(id : string) {
     const users = await User.aggregate([
       {
-        $match: {},
+        $match: {
+          _id : id ? new mongoose.Types.ObjectId(id) : ''
+        },
       },
       {
         $project: {
           name: 1,
           email: 1,
           usertype: 1,
+          profilepic: 1,
         },
       },
     ]);
     if (!users) {
-      throw new ApiError(statuscode.NoteFound, `${errMSG.userNotFound}`);
+      throw new ApiError(statuscode.NOCONTENT, `${errMSG.userNotFound}`);
     }
     return {
-      statuscode: statuscode.ok,
+      statuscode: statuscode.OK,
       data: users,
       message: MSG.success('All user get')
     };
@@ -135,10 +139,10 @@ export class UserService {
       { new: true }
     );
     if (!result) {
-      throw new ApiError(statuscode.NotImplemented, errMSG.updateUser);
+      throw new ApiError(statuscode.NOTIMPLEMENTED, errMSG.updateUser);
     }
     return {
-      statuscode: statuscode.ok,
+      statuscode: statuscode.OK,
       data: result,
       message: MSG.success('User updated')
     };

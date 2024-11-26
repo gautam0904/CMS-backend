@@ -37,7 +37,7 @@ export class UserController {
 
       res.status(created_user.statuscode).json(created_user);
     } catch (error: any) {
-      res.status(error.statuscode || 500).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
   }
 
@@ -47,14 +47,14 @@ export class UserController {
       const loginData: Iuser = req.body as unknown as Iuser;
 
       if ([loginData.email, loginData.password].some((field) => field.trim() == "")) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
 
       const login_user = await this.user.loginUser(loginData);
 
       res.status(login_user.statuscode).json(login_user);
     } catch (error: any) {
-      res.status(error.statuscode).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
 
   }
@@ -64,14 +64,14 @@ export class UserController {
     try {
       const userId = req.body.userId;
       if (!userId) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
 
       const deleted_user = await this.user.deleteUser(userId);
 
       res.status(deleted_user.statuscode).json(deleted_user);
     } catch (error) {
-      res.status(error.statuscode).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
   }
 
@@ -81,25 +81,26 @@ export class UserController {
       const updateData: IupdateUser = req.body as unknown as IupdateUser;
 
       if ([updateData.name, updateData.email, updateData.password, updateData.role].some((field) => field.trim() == "")) {
-        throw new ApiError(statuscode.NotAcceptable, errMSG.exsistuser);
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
 
       const updated_user = await this.user.updateUser(updateData);
 
       res.status(updated_user.statuscode).json(updated_user);
     } catch (error) {
-      res.status(error.statuscode).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
   }
 
-  @httpGet('/getAll')
+  @httpGet('/getById/:id?')
   async getAll(req: Request, res: Response) {
     try {
-      const allUser = await this.user.getAlluser();
+      const userId = req.params.id
+      const allUser = await this.user.getUserById(userId);
 
       res.status(allUser.statuscode).json(allUser)
     } catch (error) {
-      res.status(error.statuscode).json({ message: error.message || errMSG.InternalServerErrorResult })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message || errMSG.InternalServerErrorResult })
     }
   }
 }

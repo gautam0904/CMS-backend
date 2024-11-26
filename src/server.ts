@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express from 'express';
 import { InversifyExpressServer } from 'inversify-express-utils';
 import container from './config/inversify.config';
-import { connecrtDb } from './DB';
+import { connectDB } from './DB';
 import { MSG, errMSG } from './Constans/message'
 import dotenv from 'dotenv';
 import multer from "multer";
@@ -18,14 +18,15 @@ server.setConfig((app: express.Application) => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cors({
     origin: '*',
-    credentials: true
-  }))
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));  
 });
 
 const upload = multer({ dest: 'uploads/' });
 const app = server.build();
 
-connecrtDb().then(() => {
+connectDB().then(() => {
   app.listen(process.env.port, () => {
     console.log(MSG.serverlisten, process.env.port);
   });

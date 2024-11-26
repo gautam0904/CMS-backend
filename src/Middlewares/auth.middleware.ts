@@ -22,13 +22,13 @@ export class Auth extends BaseMiddleware {
     const tokenarray = (token as string).split(" ");
 
     if (tokenarray[0] !== "Bearer") {
-      throw new ApiError(statuscode.Unauthorized, errMSG.required("Bearer token")
+      throw new ApiError(statuscode.UNAUTHORIZED, errMSG.required("Bearer token")
       );
     }
 
     jwt.verify(tokenarray[1] as string, secretkey, (err: any, decoded: any) => {
       if (err) {
-        res.status(statuscode.Unauthorized).json({
+        res.status(statuscode.UNAUTHORIZED).json({
           message: errMSG.expiredToken
         });
 
