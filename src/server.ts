@@ -19,8 +19,7 @@ server.setConfig((app: express.Application) => {
   app.use(cors({
     origin: '*',
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }));  
+  }));
 });
 
 const upload = multer({ dest: 'uploads/' });

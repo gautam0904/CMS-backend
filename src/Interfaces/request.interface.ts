@@ -5,10 +5,6 @@ export interface IcreateRestaurant {
   USERID?: string;
 }
 
-export interface IupdateUser extends Iuser {
-  id: string;
-}
-
 export interface IgetRestaurant {
   startCreated?: Date;
   restaurantName?: string;

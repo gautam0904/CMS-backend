@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { BaseMiddleware } from "inversify-express-utils";
-import { ApiError } from "../Utiles/Apierror";
+import { ApiError } from "../Utiles";
 import { statuscode } from "../Constans/stacode";
 import { errMSG } from "../Constans/message";
 
@@ -9,9 +9,9 @@ export class Role extends BaseMiddleware {
   handler(req: Request, res: Response, next: NextFunction): void {
     try {
       const permission = {
-        admin: ['/user/deleteUser', '/user/get', `/user/update`, `/content/get`, `/content/update`, `/content/delete`, `/content/retreive`],
-        creater: [`/content/get`, `/content/create`, `/content/update`, `/content/delete`],
-        user: [`/content/get`]
+        admin: ['/user/deleteUser', '/user/getById', `/user/update`, `/content/get`, `/content/update`, `/content/delete`, `/content/retreive`],
+        creater: [`/content/get`, `/content/create`, `/content/update`, `/content/delete`, '/user/deleteUser', '/user/getById', `/user/update`,],
+        user: [`/content/get`, '/user/deleteUser', '/user/getById', `/user/update`],
       }
 
       const role = req.body.ROLE;

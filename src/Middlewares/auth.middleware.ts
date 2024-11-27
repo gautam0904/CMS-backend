@@ -4,7 +4,7 @@ import { BaseMiddleware } from "inversify-express-utils";
 import jwt from "jsonwebtoken";
 import { errMSG } from "../Constans/message"
 import { statuscode } from "../Constans/stacode";
-import { ApiError } from "../Utiles/Apierror";
+import { ApiError } from "../Utiles";
 
 export class Auth extends BaseMiddleware {
   handler(req: Request, res: Response, next: NextFunction): void {

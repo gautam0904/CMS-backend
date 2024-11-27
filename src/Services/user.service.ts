@@ -3,16 +3,14 @@ import { Iuser } from '../Interfaces/model.interface';
 import User from '../Models/user.model';
 import { statuscode } from '../Constans/stacode';
 import { MSG, errMSG } from '../Constans/message';
-import { ApiError } from '../Utiles/Apierror';
+import { ApiError, Helper, uploadOnCloudinary, deleteonCloudinary } from '../Utiles';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt'
-import { IupdateUser } from '../Interfaces/request.interface';
-import { uploadOnCloudinary } from '../Utiles/cloudinary';
+import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
 @injectable()
 export class UserService {
-  constructor() { }
+  constructor(private helper: Helper) { }
 
   cloudinaryURL: string | null = null
 
@@ -26,22 +24,25 @@ export class UserService {
 
       const profile = await uploadOnCloudinary(userData.profilepic);
 
+      this.cloudinaryURL = profile.data.url
+
       const result = await User.create({
         name: userData.name,
         email: userData.email,
-        profipic: profile.url,
-        profilepicId: profile.public_id,
+        profilepic: profile.data.url,
+        profilepicId: profile.data.public_id,
         password: userData.password,
         role: userData.role
       });
-
+      this.cloudinaryURL = null
       return {
         statuscode: statuscode.OK,
         message: MSG.success('User created'),
         data: result
       }
     } catch (error) {
-      // delete cloudinary image
+      deleteonCloudinary(this.cloudinaryURL);
+      this.cloudinaryURL = null;
       return {
         statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
         message: error.message || errMSG.InternalServerErrorResult,
@@ -100,11 +101,11 @@ export class UserService {
     };
   }
 
-  async getUserById(id : string) {
+  async getUserById(id: string) {
     const users = await User.aggregate([
       {
         $match: {
-          _id : id ? new mongoose.Types.ObjectId(id) : ''
+          _id: id ? new mongoose.Types.ObjectId(id) : ''
         },
       },
       {
@@ -126,13 +127,14 @@ export class UserService {
     };
   }
 
-  async updateUser(updateData: IupdateUser) {
+  async updateUserWithoutProfilePicture(updateData: Iuser) {
     const result = await User.findByIdAndUpdate(
       {
-        _id: updateData.id,
+        _id: updateData._id,
       },
       {
         $set: {
+          name: updateData.name,
           usertype: updateData.role,
         },
       },
@@ -146,5 +148,53 @@ export class UserService {
       data: result,
       message: MSG.success('User updated')
     };
+  }
+
+  async updateUserWithProfilePicture(updateData: Iuser) {
+    let uploadFileUrl: string | null = null;
+    try {
+      const profile = await this.helper.uploadMedia(updateData.profilepic);
+      uploadFileUrl = profile.url;
+
+      const oldUser = await User.findById(updateData._id);
+      if (!oldUser) {
+        throw new ApiError(statuscode.NOTIMPLEMENTED, errMSG.userNotFound);
+      }
+      const oldMideaDeletion = await deleteonCloudinary(oldUser.profilepic);
+
+      if (!oldMideaDeletion.success) {
+        console.warn("Old media deletion failed:", oldMideaDeletion.message);
+      }
+
+      const result = await User.findByIdAndUpdate(
+        {
+          _id: updateData._id,
+        },
+        {
+          $set: {
+            name: updateData.name,
+            profilepic: uploadFileUrl,
+            usertype: updateData.role,
+          },
+        },
+        { new: true }
+      );
+      if (!result) {
+        throw new ApiError(statuscode.NOTIMPLEMENTED, errMSG.updateUser);
+      }
+      return {
+        statuscode: statuscode.OK,
+        data: result,
+        message: MSG.success('User updated')
+      };
+    } catch (error) {
+      if (uploadFileUrl) {
+        deleteonCloudinary(uploadFileUrl);
+      }
+      return {
+        statuscode: error.statuscode || statuscode.INTERNALSERVERERROR,
+        message: error.message || errMSG.InternalServerErrorResult,
+      }
+    }
   }
 }

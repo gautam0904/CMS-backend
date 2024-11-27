@@ -8,14 +8,12 @@ import { ContentService } from "../Services/content.service";
 import { inject } from "inversify"
 import { MSG, errMSG } from "../Constans/message";
 import { TYPES } from '../Types/types';
-import { ApiError } from "../Utiles/Apierror";
+import { ApiError } from "../Utiles";
 import { statuscode } from "../Constans/stacode";
 // const upload = multer({ dest: 'uploads/' })
 
-const authMiddleware = new Auth
-const roleMiddleware = new Role
 
-@controller("/content", authMiddleware.handler)
+@controller("/content", Auth)
 export class ContenetController {
 
   private content: ContentService
@@ -24,7 +22,7 @@ export class ContenetController {
     this.content = content;
   }
 
-  @httpPost("/create", roleMiddleware.handler, upload.fields([{
+  @httpPost("/create", Role, upload.fields([{
     name: 'midea',
     maxCount: 1
   }]))
@@ -51,7 +49,7 @@ export class ContenetController {
   }
 
 
-  @httpGet('/get', roleMiddleware.handler)
+  @httpGet('/get', Role)
   async get(req: Request, res: Response) {
     try {
       const content = await this.content.getContent();
@@ -65,8 +63,11 @@ export class ContenetController {
     }
   }
 
-  @httpPut('/update')
-  async update(req: Request, res: Response) {
+  @httpPut('/update', Role, upload.fields([{
+    name: 'midea',
+    maxCount: 1
+  }]))
+  async update(req: Request, res: Response,) {
     try {
       const updateData: Icontent = req.body as unknown as Icontent;
       updateData.owner = updateData.updatedby = req.body.USERID;
@@ -75,15 +76,15 @@ export class ContenetController {
       const profilePictureLocalpath = files?.midea?.[0]?.path;
       updateData.midea = profilePictureLocalpath;
 
-      const updated_user = profilePictureLocalpath? await this.content.updateContentWithMidea(updateData._id, updateData) : await this.content.updateContentWithoutMidea(updateData._id, updateData)
+      const updated_user = profilePictureLocalpath ? await this.content.updateContentWithMidea(updateData._id, updateData) : await this.content.updateContentWithoutMidea(updateData._id, updateData)
 
       res.status(updated_user.statuscode).json(updated_user);
     } catch (error) {
-      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message  })
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({ message: error.message })
     }
   }
 
-  @httpDelete('/delete')
+  @httpDelete('/delete', Role)
   async delete(req: Request, res: Response) {
     try {
       const cid = req.query.id as string;

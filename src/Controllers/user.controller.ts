@@ -3,12 +3,13 @@ import { UserService } from "../Services/user.service";
 import { inject } from "inversify";
 import { TYPES } from "../Types/types"
 import { Iuser } from "../Interfaces/model.interface";
-import { ApiError } from "../Utiles/Apierror";
+import { ApiError } from "../Utiles";
 import { statuscode } from "../Constans/stacode";
 import { errMSG } from "../Constans/message";
 import { Request, Response } from "express";
-import { IupdateUser } from "../Interfaces/request.interface";
 import { upload } from "../Middlewares/multer.midddleware";
+import { Auth } from "../Middlewares/auth.middleware";
+import { Role } from "../Middlewares/role.middleware";
 
 @controller('/user')
 export class UserController {
@@ -29,7 +30,6 @@ export class UserController {
       const signupData: Iuser = req.body as unknown as Iuser;
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
       const profilePictureLocalpath = files?.profilePicture?.[0]?.path;
       signupData.profilepic = profilePictureLocalpath;
 
@@ -59,12 +59,15 @@ export class UserController {
 
   }
 
-  @httpDelete('/delete')
+  @httpDelete('/delete', Auth, Role)
   async delete(req: Request, res: Response) {
     try {
       const userId = req.body.userId;
       if (!userId) {
         throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
+      }
+      if (userId != req.body.USERID) {
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(req.body.ROLE, 'update the another user'));
       }
 
       const deleted_user = await this.user.deleteUser(userId);
@@ -75,16 +78,23 @@ export class UserController {
     }
   }
 
-  @httpPut('/update')
-  async update(req: Request, res: Response) {
+  @httpPut('/update', Auth, Role, upload.fields([{
+    name: 'profilePicture',
+    maxCount: 1
+  }]))
+  async update(req: Request, res: Response,) {
     try {
-      const updateData: IupdateUser = req.body as unknown as IupdateUser;
+      const updateData: Iuser = req.body as unknown as Iuser;
 
-      if ([updateData.name, updateData.email, updateData.password, updateData.role].some((field) => field.trim() == "")) {
-        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
+      if (updateData._id != req.body.USERID) {
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(req.body.ROLE, 'update the another user'));
       }
 
-      const updated_user = await this.user.updateUser(updateData);
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const profilePictureLocalpath = files?.profilePicture?.[0]?.path;
+      updateData.profilepic = profilePictureLocalpath;
+
+      const updated_user = profilePictureLocalpath ? await this.user.updateUserWithProfilePicture(updateData) : await this.user.updateUserWithoutProfilePicture(updateData)
 
       res.status(updated_user.statuscode).json(updated_user);
     } catch (error) {
@@ -92,7 +102,7 @@ export class UserController {
     }
   }
 
-  @httpGet('/getById/:id?')
+  @httpGet('/getById/:id?', Auth, Role)
   async getAll(req: Request, res: Response) {
     try {
       const userId = req.params.id

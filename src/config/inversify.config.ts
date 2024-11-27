@@ -3,10 +3,10 @@ import { TYPES } from '../Types/types';
 import * as controller from '../Controllers';
 import * as services from '../Services';
 // import * as query from '../query';
-
-// import { Auth } from '../middleware/auth.middleware'
-// import { ApiError } from '../utility/ApiError'
-// import { Role } from '../middleware/role.middleware'
+import { Helper } from '../Utiles';
+import { Auth } from '../Middlewares/auth.middleware'
+// import { ApiError } from '../Utiles'
+import { Role } from '../Middlewares/role.middleware'
 
 
 
@@ -20,8 +20,8 @@ const container = new Container()
 // }
 
 // //middleware
-// container.bind<Auth>(Auth).toSelf();
-// container.bind<Role>(Role).toSelf();
+container.bind<Auth>(Auth).toSelf();
+container.bind<Role>(Role).toSelf();
 
 //controller
 for (const i in controller) {
@@ -37,6 +37,9 @@ for (const i in services) {
 
 // //error
 // container.bind<ApiError>(ApiError).toSelf();
+
+// helper
+container.bind<Helper>(Helper).toSelf();
 
 
 export default container
