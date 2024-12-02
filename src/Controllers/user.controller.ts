@@ -66,7 +66,7 @@ export class UserController {
       if (!userId) {
         throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
-      if (userId != req.body.USERID) {
+      if (req.body.ROLE === 'admin' && userId != req.body.USERID) {
         throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(req.body.ROLE, 'update the another user'));
       }
 
