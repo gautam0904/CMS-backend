@@ -9,5 +9,8 @@ export const TYPES = {
 
   //middleware
   Auth: Symbol.for('Auth'),
-  Role: Symbol.for('Role')
+  Role: Symbol.for('Role'),
+
+  // helper
+  Helper: Symbol.for('Helper')
 }
