@@ -5,6 +5,7 @@ import Content from '../Models/content.model';
 import { MSG, errMSG } from '../Constans/message';
 import mongoose from 'mongoose';
 import { statuscode } from '../Constans/stacode';
+import { IcontentDTO } from '../Dto/content.dto';
 
 @injectable()
 export class ContentService {
@@ -27,7 +28,7 @@ export class ContentService {
     }
   }
 
-  async createContent(contentData: Icontent) {
+  async createContent(contentData: IcontentDTO) {
     let uploadedFileUrl: string | null = null;
     try {
       const mideacloudinary = await uploadOnCloudinary(contentData.midea);
@@ -166,6 +167,15 @@ export class ContentService {
         message: error.message || errMSG.defaultErrorMsg,
         data: error
       }
+    }
+  }
+
+  async getContentByUser(id: string) {
+    const result = await Content.find({ owner: id });
+    return {
+      statuscode: statuscode.OK,
+      message: MSG.success("Content fetched"),
+      data: result
     }
   }
 

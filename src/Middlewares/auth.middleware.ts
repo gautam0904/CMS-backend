@@ -1,43 +1,40 @@
 import { NextFunction, Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
 import { BaseMiddleware } from "inversify-express-utils";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { errMSG } from "../Constans/message"
 import { statuscode } from "../Constans/stacode";
 import { ApiError } from "../Utiles";
 
 export class Auth extends BaseMiddleware {
-  handler(req: Request, res: Response, next: NextFunction): void {
+  handler(req: Request, res: Response, next: NextFunction) {
     const secretkey = process.env.AccessTokenSeceret;
-
     const token = req.headers.token;
 
     if (!token) {
-      res.status(401).json({
+      return res.status(401).json({
         message: errMSG.required("Access token")
       });
-      return;
     }
 
-    const tokenarray = (token as string).split(" ");
+    const tokenArray = (token as string).split(" ");
 
-    if (tokenarray[0] !== "Bearer") {
-      throw new ApiError(statuscode.UNAUTHORIZED, errMSG.required("Bearer token")
-      );
+    if (tokenArray[0] !== "Bearer") {
+      throw new ApiError(statuscode.UNAUTHORIZED, errMSG.required("Bearer token"));
     }
 
-    jwt.verify(tokenarray[1] as string, secretkey, (err: any, decoded: any) => {
-      if (err) {
-        res.status(statuscode.UNAUTHORIZED).json({
-          message: errMSG.expiredToken
-        });
-
-        return
-      }
-      req.find = decoded
+    try {
+      const decoded: any = jwt.verify(tokenArray[1] as string, secretkey);
       req.body.USERID = decoded.id;
       req.body.ROLE = decoded.role;
-      next()
-    })
+
+      req.headers.USERID = decoded.id;
+      req.headers.ROLE = decoded.role;
+
+      next();
+    } catch (error) {
+      return res.status(statuscode.UNAUTHORIZED).json({
+        message: errMSG.expiredToken
+      });
+    }
   }
 }

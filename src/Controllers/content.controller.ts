@@ -10,10 +10,10 @@ import { MSG, errMSG } from "../Constans/message";
 import { TYPES } from '../Types/types';
 import { ApiError } from "../Utiles";
 import { statuscode } from "../Constans/stacode";
+import { IcontentDTO } from "../Dto/content.dto";
 // const upload = multer({ dest: 'uploads/' })
 
-
-@controller("/content", Auth)
+@controller("/content")
 export class ContenetController {
 
   private content: ContentService
@@ -22,15 +22,16 @@ export class ContenetController {
     this.content = content;
   }
 
-  @httpPost("/create", Role, upload.fields([{
-    name: 'midea',
+  @httpPost('/create', Auth, Role, upload.fields([{
+    name: "midea",
     maxCount: 1
-  }]))
+  }]),)
   async create(req: Request, res: Response) {
     try {
-      const contentData: Icontent = req.body;
+      const contentData: IcontentDTO = req.body;
+      const currentUserId = req.body.USERID || req.headers.USERID;
 
-      contentData.owner = contentData.updatedby = req.body.USERID;
+      contentData.owner = contentData.updatedby = currentUserId;
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -48,8 +49,20 @@ export class ContenetController {
     }
   }
 
+  @httpGet('/getByUser/:id?', Auth, Role)
+  async getByUser(req: Request, res: Response) {
+    try {
+      const userId = req.query.id
+      const content = await this.content.getContentByUser(userId as string);
+      res.status(content.statuscode).json(content)
+    } catch (error: any) {
+      res.status(error.statuscode || statuscode.INTERNALSERVERERROR).json({
+        message: error.message || errMSG.InternalServerErrorResult
+      })
+    }
+  }
 
-  @httpGet('/get', Role)
+  @httpGet('/get', Auth, Role)
   async get(req: Request, res: Response) {
     try {
       const content = await this.content.getContent();
@@ -63,14 +76,15 @@ export class ContenetController {
     }
   }
 
-  @httpPut('/update', Role, upload.fields([{
+  @httpPut('/update', Auth, Role, upload.fields([{
     name: 'midea',
     maxCount: 1
   }]))
   async update(req: Request, res: Response,) {
     try {
       const updateData: Icontent = req.body as unknown as Icontent;
-      updateData.owner = updateData.updatedby = req.body.USERID;
+      const currentUserId = req.body.USERID || req.headers.USERID;
+      updateData.owner = updateData.updatedby = currentUserId;
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const profilePictureLocalpath = files?.midea?.[0]?.path;
@@ -84,7 +98,7 @@ export class ContenetController {
     }
   }
 
-  @httpDelete('/delete', Role)
+  @httpDelete('/delete', Auth, Role)
   async delete(req: Request, res: Response) {
     try {
       const cid = req.query.id as string;

@@ -102,11 +102,10 @@ export class UserService {
   }
 
   async getUserById(id: string) {
+    const userMatch = id ? { _id: new mongoose.Types.ObjectId(id) } : {};
     const users = await User.aggregate([
       {
-        $match: {
-          _id: id ? new mongoose.Types.ObjectId(id) : ''
-        },
+        $match: userMatch,
       },
       {
         $project: {

@@ -63,11 +63,13 @@ export class UserController {
   async delete(req: Request, res: Response) {
     try {
       const userId = req.body.userId;
+      const role = req.body.ROLE || req.headers.ROLE;
+      const currentUserId = req.body.USERID || req.headers.USERID;
       if (!userId) {
         throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.exsistuser);
       }
-      if (req.body.ROLE === 'admin' && userId != req.body.USERID) {
-        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(req.body.ROLE, 'update the another user'));
+      if (role === 'admin' && userId != currentUserId) {
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(role, 'update the another user'));
       }
 
       const deleted_user = await this.user.deleteUser(userId);
@@ -79,15 +81,17 @@ export class UserController {
   }
 
   @httpPut('/update', Auth, Role, upload.fields([{
-    name: 'profilePicture',
+    name: "profilePicture",
     maxCount: 1
-  }]))
+  }]),)
   async update(req: Request, res: Response,) {
     try {
       const updateData: Iuser = req.body as unknown as Iuser;
+      const role = req.body.ROLE || req.headers.ROLE;
+      const currentUserId = req.body.USERID || req.headers.USERID;
 
-      if (updateData._id != req.body.USERID) {
-        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(req.body.ROLE, 'update the another user'));
+      if (updateData._id != currentUserId) {
+        throw new ApiError(statuscode.NOTACCEPTABLE, errMSG.notValidRole(role, 'update the another user'));
       }
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };

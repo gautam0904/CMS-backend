@@ -22,7 +22,7 @@ server.setConfig((app: express.Application) => {
   }));
 });
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'public/' });
 const app = server.build();
 
 connectDB().then(() => {
