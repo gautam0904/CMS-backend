@@ -8,7 +8,7 @@ export class Role extends BaseMiddleware {
   handler(req: Request, res: Response, next: NextFunction): void {
     try {
       const permission = {
-        admin: ['/user/deleteUser', '/user/getById', `/user/update`, `/content/get`, `/content/update`, `/content/delete`, `/content/getByUser`],
+        admin: ['/user/deleteUser', '/user/getById', `/user/update`, '/user/delete', `/content/get`, `/content/update`, `/content/delete`, `/content/getByUser`],
         creater: [`/content/get`, `/content/create`, `/content/update`, `/content/delete`, '/user/deleteUser', '/user/getById', `/user/update`, '/content/getByUser'],
         user: [`/content/get`, '/user/deleteUser', '/user/getById', `/user/update`, '/content/getByUser'],
       }
