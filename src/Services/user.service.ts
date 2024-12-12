@@ -113,7 +113,8 @@ export class UserService {
           email: 1,
           usertype: 1,
           profilepic: 1,
-          createdAt:1
+          createdAt:1,
+          role:1
         },
       },
     ]);
